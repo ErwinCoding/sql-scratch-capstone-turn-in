@@ -1,0 +1,200 @@
+-QUESTION 1-
+SELECT * 
+FROM   quiz 
+LIMIT  10; 
+
+-QUESTION 2-
+SELECT question, 
+COUNT (user_id) AS Responses 
+FROM   survey 
+GROUP  BY 1; 
+
+-QUESTION 4-
+SELECT * 
+FROM   quiz 
+LIMIT  5; 
+
+SELECT * 
+FROM   home_try_on 
+LIMIT  5; 
+
+SELECT * 
+FROM   purchase 
+LIMIT  5; 
+
+-QUESTION 5-
+  --DELETE THE WORD PAIRS FROM home_try_on--
+  UPDATE home_try_on SET number_of_pairs = REPLACE(number_of_pairs, 'pairs', '');
+  --FUNNELDATA--
+  WITH Funnel AS (
+  SELECT
+    DISTINCT q.user_id,
+    CASE
+      WHEN h.user_id IS NOT NULL THEN 'True'
+      ELSE 'False'
+    END AS is_home_try_on,
+    number_of_pairs,
+    CASE
+      WHEN p.user_id IS NOT NULL THEN 'True'
+      ELSE 'False'
+    END AS is_purchase
+  FROM
+    quiz AS q
+  LEFT JOIN
+    home_try_on AS h
+  ON
+    q.user_id = h.user_id
+  LEFT JOIN
+    purchase AS p
+  ON
+    q.user_id = p.user_id )
+  --OUTPUT--
+SELECT
+  *
+FROM
+  Funnel
+LIMIT
+  10;
+
+-QUESTION 6-
+    WITH Funnel AS (
+  SELECT
+    DISTINCT q.user_id,
+    CASE
+      WHEN h.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_home_try_on,
+    number_of_pairs,
+    CASE
+      WHEN p.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_purchase
+  FROM
+    quiz AS q
+  LEFT JOIN
+    home_try_on AS h
+  ON
+    q.user_id = h.user_id
+  LEFT JOIN
+    purchase AS p
+  ON
+    q.user_id = p.user_id )
+SELECT
+  ROUND(1.0 * SUM (is_purchase) / COUNT (user_id),2) AS 'Conv.Rate_Overall'
+FROM
+  Funnel;
+
+
+  WITH Funnel AS (
+  SELECT
+    DISTINCT q.user_id,
+    CASE
+      WHEN h.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_home_try_on,
+    number_of_pairs,
+    CASE
+      WHEN p.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_purchase
+  FROM
+    quiz AS q
+  LEFT JOIN
+    home_try_on AS h
+  ON
+    q.user_id = h.user_id
+  LEFT JOIN
+    purchase AS p
+  ON
+    q.user_id = p.user_id )
+SELECT
+  COUNT (user_id) AS 'Step1_Users_Quiz',
+  SUM (is_home_try_on) AS 'Step2_Users_HomeTry',
+  SUM (is_purchase) AS 'Step3_Users_Purchase',
+  1.0 * SUM (is_home_try_on) / COUNT (user_id) AS 'Conv.Rate_Step1_to_2',
+  1.0 * SUM (is_purchase) / SUM (is_home_try_on) AS 'Conv.Rate_Step2_to_3'
+FROM
+  Funnel;
+
+
+  WITH Funnel AS (
+  SELECT
+    DISTINCT q.user_id,
+    CASE
+      WHEN h.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_home_try_on,
+    number_of_pairs,
+    CASE
+      WHEN p.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_purchase
+  FROM
+    quiz AS q
+  LEFT JOIN
+    home_try_on AS h
+  ON
+    q.user_id = h.user_id
+  LEFT JOIN
+    purchase AS p
+  ON
+    q.user_id = p.user_id )
+SELECT
+  number_of_pairs,
+  COUNT (user_id) AS 'Total Users',
+  ROUND(1.0 * SUM (is_purchase) / COUNT (user_id),2) AS '% User Reached Purchase'
+FROM
+  Funnel
+GROUP BY
+  1
+ORDER BY
+  2 DESC;
+
+
+  WITH Funnel AS (
+  SELECT
+    DISTINCT q.user_id,
+    CASE
+      WHEN h.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_home_try_on,
+    number_of_pairs,
+    CASE
+      WHEN p.user_id IS NOT NULL THEN '1'
+      ELSE '0'
+    END AS is_purchase,
+    price
+  FROM
+    quiz AS q
+  LEFT JOIN
+    home_try_on AS h
+  ON
+    q.user_id = h.user_id
+  LEFT JOIN
+    purchase AS p
+  ON
+    q.user_id = p.user_id )
+SELECT
+  number_of_pairs,
+  COUNT (user_id) AS 'Total Users',
+  ROUND(1.0 * SUM (is_purchase) / COUNT (user_id),2) AS '% User Reached Purchase',
+  SUM (price) / COUNT (user_id) AS AvgOrderValue
+FROM
+  Funnel
+GROUP BY
+  1
+ORDER BY
+  2 DESC;
+
+
+SELECT
+  question,
+  MAX(response) AS MaxResp
+FROM
+  Survey
+GROUP BY
+  1;
+
+
+
+
